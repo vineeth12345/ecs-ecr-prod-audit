@@ -1,9 +1,11 @@
+
 import boto3
 import datetime
 
 
 def get_ecs_services(cluster_name):
-    ecs_client = boto3.client('ecs')
+    # Replace 'us-west-2' with your desired region
+    ecs_client = boto3.client('ecs', region_name='us-east-1')
     services = ecs_client.list_services(cluster=cluster_name)['serviceArns']
     return services
 
@@ -27,7 +29,8 @@ def get_image_details(task_definition):
 
 
 def get_image_creation_date(image):
-    ecr_client = boto3.client('ecr')
+    # Replace 'us-west-2' with your desired region
+    ecr_client = boto3.client('ecr', region_name='us-east-1')
     repository_name, image_tag = image.split(':')
     image_details = ecr_client.describe_images(repositoryName=repository_name, imageIds=[
                                                {'imageTag': image_tag}])['imageDetails'][0]
@@ -46,7 +49,8 @@ def get_owning_team(service_arn):
 
 def get_image_status(image, cluster_name):
     if 'linux' in cluster_name.lower():
-        inspector_client = boto3.client('inspector')
+        # Replace 'us-west-2' with your desired region
+        inspector_client = boto3.client('inspector', region_name='us-east-1')
         findings = inspector_client.list_findings()['findings']
         for finding in findings:
             if finding['severity'] in ['HIGH', 'CRITICAL']:
