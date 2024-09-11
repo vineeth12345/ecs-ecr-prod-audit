@@ -1,26 +1,31 @@
-name: "ECS PROD Audit"
+name: Audit ECR Images
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0" # Runs every Sunday at midnight
 
 jobs:
-  audit:
+  audit-ecr-images:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          python-version: "3.x"
 
-      - name: Run ECS audit script.
+      - name: Install AWS CLI
         run: |
-          aws ecs list-services --cluster github-ephemeral-test --output text | awk '{print $2}' | while read -r service; do
-              task_definition=$(aws ecs describe-services --cluster github-ephemeral-test --services $service --query 'services[0].taskDefinition' --output text)
-              image=$(aws ecs describe-task-definition --task-definition $task_definition --query 'taskDefinition.containerDefinitions[0].image' --output text)
-              echo "Service: $service, Image: $image"
-          done
+          pip install awscli boto3
+
+      - name: Audit ECR Images
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "us-east-1"
+        run: |
+          python audit_ecr_images.py
