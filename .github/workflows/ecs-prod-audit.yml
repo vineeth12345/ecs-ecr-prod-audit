@@ -19,4 +19,13 @@ jobs:
 
       - name: Run ECS audit script
         run: |
-          aws ecs describe-clusters --cluster github-ephemeral-test --output table
+          aws ecs describe-clusters --cluster github-ephemeral-test --output table 
+          ecs_clusters=$(aws ecs list-clusters --output text --query 'clusterArns[*]')
+          for cluster in $ecs_clusters; do
+            ecs_services=$(aws ecs list-services --cluster $cluster --output text --query 'serviceArns[*]')
+            for service in $ecs_services; do
+              task_definition=$(aws ecs describe-services --cluster $cluster --services $service --output text --query 'services[0].taskDefinition')
+              image=$(aws ecs describe-task-definition --task-definition $task_definition --output text --query 'taskDefinition.containerDefinitions[0].image')
+              echo "Cluster: $cluster, Service: $service, Image: $image"
+            done
+          done
