@@ -19,4 +19,4 @@ jobs:
 
       - name: Run ECS audit script
         run: |
-          aws ecs list-clusters --output table
+          aws ecs describe-clusters --cluster github-ephemeral-test --output table
