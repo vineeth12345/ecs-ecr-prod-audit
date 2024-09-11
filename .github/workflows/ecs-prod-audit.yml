@@ -17,6 +17,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Run ECS audit script
+      - name: Run ECS audit script.
         run: |
-          aws ecs describe-services --cluster github-ephemeral-test --services github-ephemeral-test --output table
+          aws ecs list-services --cluster github-ephemeral-test --output text | awk '{print $2}' | while read -r service; do
+              task_definition=$(aws ecs describe-services --cluster github-ephemeral-test --services $service --query 'services[0].taskDefinition' --output text)
+              image=$(aws ecs describe-task-definition --task-definition $task_definition --query 'taskDefinition.containerDefinitions[0].image' --output text)
+              echo "Service: $service, Image: $image"
+          done
