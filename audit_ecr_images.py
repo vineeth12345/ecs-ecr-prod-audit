@@ -30,7 +30,10 @@ def get_image_details(task_definition):
 
 def get_image_creation_date(image, region):
     ecr_client = boto3.client('ecr', region_name=region)
-    repository_name, image_tag = image.split(':')
+    if '/' in image:
+        repository_name, image_tag = image.split('/')[-1].split(':')
+    else:
+        repository_name, image_tag = image.split(':')
     image_details = ecr_client.describe_images(repositoryName=repository_name, imageIds=[
                                                {'imageTag': image_tag}])['imageDetails'][0]
     creation_date = image_details['imagePushedAt']
