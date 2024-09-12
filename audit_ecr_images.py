@@ -10,6 +10,7 @@ def get_ecs_services(cluster_name, region):
 
 def get_task_definition(service_arn, region):
     ecs_client = boto3.client('ecs', region_name=region)
+    print(f"Describing service: {service_arn} in region: {region}")
     task_definition_arn = ecs_client.describe_services(services=[service_arn])[
         'services'][0]['taskDefinition']
     task_definition = ecs_client.describe_task_definition(
@@ -64,6 +65,7 @@ def generate_markdown_table(cluster_name, services, region):
     table += "| Image Name | Image Creation Date | ECS Service | Owning Team | Status |\n"
     table += "|------------|---------------------|-------------|-------------|--------|\n"
     for service in services:
+        print(f"Processing service: {service} in cluster: {cluster_name}")
         task_definition = get_task_definition(service, region)
         images = get_image_details(task_definition)
         for image in images:
