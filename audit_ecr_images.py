@@ -1,5 +1,6 @@
 import boto3
 import datetime
+import pytz
 
 
 def get_ecs_services(cluster_name, region):
@@ -59,7 +60,9 @@ def get_image_status(image, cluster_name, region):
         return '✅'
     else:
         creation_date = get_image_creation_date(image, region)
-        if (datetime.datetime.now() - creation_date).days > 90:
+        # Make datetime.now() timezone-aware
+        now = datetime.datetime.now(pytz.utc)
+        if (now - creation_date).days > 90:
             return '❌'
         return '✅'
 
