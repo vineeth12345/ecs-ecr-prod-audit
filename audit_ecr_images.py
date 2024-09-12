@@ -79,7 +79,7 @@ def generate_markdown_table(cluster_name, services):
 
 
 def main():
-    clusters = ['github-ephemeral-test']
+    clusters = ['Test-Cluster']
     # clusters = ['PROD', 'PROD-LINUX']
     summary = "# ECR Image Audit Report\n\n"
     for cluster in clusters:
